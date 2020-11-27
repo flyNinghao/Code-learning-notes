@@ -1,1 +1,60 @@
 HTML
+基础：
+  -url本质是在下载资源
+  -浏览器是一个解释器，解释HTML，css及js语言
+  -cs模式：client<->server
+  -bs模式：browser<->server
+  -hyper text makaup language：超文本标签语言（超文本：指页面内可以包含图片、文本、音频、视频、程序等非文字元素，标记：标签语言）
+  -静态网页：只提供静态资源
+  -动态网页：可交互
+  
+  -HTML树形结构：
+  
+  
+  
+  
+  -标签：
+    -闭合标签<div></div>、自闭和标签<meta><img>
+    -不能交叉嵌套
+    -不区分大小写
+  
+    -标签属性：
+      -通常在开始标签中以键值对的形式出现，如<img name="image">
+      -属性名字小写，用双引号包裹
+      -属性值和名字一样，直接写属性名即可，如<p readonly>
+
+    -<!DOCTYPE html>标签
+      -渲染模式（按照W3C标准）
+
+    -<html>根标签
+
+    -<head>解释说明标签
+      -<meta charset="utf-8">编码格式
+        -name属性：用于描述网页，与之对应的属性值为content，content中的内容主要是便于搜索引擎机器人查找信息和分类信息用的,如
+          -<mate name="keywords" content="meta总结，爱情，情侣，meta属性">
+          -<meta name="description" content="这个网页只是用来做测试用的，随便看"
+        -http-equiv属性：相当于http的文件头作用，它可以向浏览器传回一些有用的信息，以帮助正确和精确地显示网页内容，与之对应的属性值为content，content
+        中的内容就是各个参数的变量值
+          -<meta http-equiv="Refresh" content="2;URL-https://www.baidu.com">两秒之后刷新跳转至baidu,不加url，定时刷新
+          -<meta http-equiv="content-Type" charset="utf-8">
+          -<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"/>兼容标签
+        
+      -<title>网页名称
+      -<link rel="icon" href="xxxx">网页小图标
+      -<link rel="stylesheet" href="xxx">导入css
+      -<script src="xxx">导入js
+      
+    -<body>标签
+      -<h>系列标签1-7，数字越大，值越小（标题标签）
+      -<p>标签，段落标签
+      -<b>加粗标签(以前标准)
+      -<strong>加粗标签(现在的标准）
+      -<strike>标签，横线标签
+      -<em>斜体标签
+      -<sub>下角标标签
+      -<sup>上角标标签
+      -<br>换行标签
+      -<hr>水平线标签
+      
+      -<div>
+      
