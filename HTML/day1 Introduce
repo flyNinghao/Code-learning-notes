@@ -83,12 +83,44 @@ HTML
       
       -表格标签
         -<table>
+          -<thead>（已不用）
+          -<tbody>（已不用）
+          -<tr>
+            -<th>
+            -<td>
+        -cellpadding:内边距
+        -cellspacing:外边距
+        -rowspan:一格占几行
+        -colspan:一格占几列
         
       -表单标签
         -<form>交互表单（与server交互）
-          -action:地址
+          -action:地址(一般指向服务端的一个程序，程序接收程序做响应处理)
           -method:提交方式
+            -get:提交键值对，放在地址栏URL后面，安全性较差，提交内容长度有限制
+            -post:提交键值对，不在地址栏，相对安全，内容理论无限制
         -<input>获取输入值，包括很多：单选框，复选框，输入框，密码框
+          -button:按钮
+          -reset:重置
+          -submit:提交
+          -passwor:密码框
+          -checkbox:复选框
+          -radio:单选框
+          -file:文件（要传递文件时，form表单需要添加一个属性，enctype="multipart/fprm-data",服务端接收方式改为FILES）
+          -disabled属性：不可编辑
+        -<select name="">
+          -multiple:多选
+          -size:个数
+          -selected:默认选中
+          -<option value=""></option>(服务端接收到的是 name：value的键值对)
+          -<optgroup label="">
+            <option></option>
+           </optgroup>
+          -<textarea>:
+            -cols:默认列
+            -rows:默认行
+        -<label for="id">可以将label与指定id的input框关联
+          
       
     -特殊字符：
       -&lt：<
