@@ -1,0 +1,122 @@
+JavaScript
+  -ECMAScript
+  -DOM
+  -BOM
+  -大多数情况下，是基于对象的
+  -引入方式
+    -直接写入：写在body的最后面
+    -文件引入<script src=""></script>
+  
+JS基础
+  1，变量
+    -用var声明，var a;
+    -一行可以声明多个变量，var a="dd",b=12
+    -不用var则声明的就是全局变量
+    -首字符只能是字母,下划线,$美元符 三选一，且区分大小写
+    -命名方法
+      -驼峰法（Camel）:首字母小写，剩下首字母的大写：myName
+      -Pascal:首字母大写MyName
+      -匈牙利类型：Pascal前面加类型的小写字母：sMyName = "fuck"
+      
+  2，基础规范
+    -以分号分隔每个语句（推荐），每行结束可以不加分号，以换行符结束
+    -使用{}封装代码
+  
+  3，数据类型
+    -基本数据类型：Number，String，Null，Undefined，Boolean：存放在栈中
+    -引用数据类型：对象，存放在堆中
+    -Undefined：只有一个值（undefined）变量声明但是未初始化时，默认值是undefined；当函数无明确返回值时，返回的也是值“undefined”
+    -Null：只有一个值（null），值 undefined 实际上是从值 null 派生来的，因此 ECMAScript 把它们定义为相等的。null 则用于表示尚未存在的对象，如果函数返回的是对象，找不到时，则返回null
+    
+    -数据类型转换
+      -弱变量语言，只有在赋值的时候确定数据类型，不同数据类型在计算过程中会强制进行类别转化
+        -数字+字符串：数字转化为字符串类型
+    -强制类型转换函数
+      -parseInt：强制转化成整数。NaN：属于Number数据类型，当转换失败时，则是NAN
+      -parseFloat：强制转换成浮点数
+      -eval：将字符串强制转换为表达式并返回结果 eval("1+1")=2
+  
+  4，运算符
+    -算数运算符：加(＋)、 减(－)、 乘(*) 、除(/) 、余数(% )
+      -递增（++），递减（--），i++(先输出，再执行++),++i(先执行++，再输出)
+      -NAN特点：NAN参与的所有运算都是false，除了 !=
+    -逻辑运算符
+      -等于 ( == )  、不等于( != ) 、 大于( > ) 、 小于( < ) 大于等于(>=) 、小于等于(<=) 与 (&&) 、或(||) 、非(!)
+        -&&：如果两个运算数都是对象，返回第二个对象（返回）
+        -如果其中一个是NAN、null、undefined，分别返回NAN，null，undefined
+    -赋值运算符
+      -=（等号）
+    -位运算符
+      -&，|，^（二进制位的与或非）
+    -等性运算符
+      -==（判断过程中会进行类型转化）
+      -===（全等，不会转换类型）
+    -关系运算符
+      -比较运算符两侧如果一个是数字类型,一个是其他类型,会将其类型转换成数字类型.
+      -比较运算符两侧如果都是字符串类型,比较的是最高位的asc码,如果最高位相等,继续取第二位比较.
+    -boolean运算符
+    
+  5，控制语句
+    -if(){} else if(){} else{}
+    -switch(){case 值1:语句1;break;   case 值2:语句2;break;...default:找不到case}
+    -for(){}
+    -while(){}
+  
+  6，异常处理
+    -try{执行代码，遇到异常则抛出}catch(e){接收try抛出的异常}finaly{/无论try中代码是否有异常抛出（甚至是try代码块中有return语句），finally代码块中始终会被执行。}
+    
+  7，ECMA对象
+    -内置11个对象：Array ,String , Date, Math, Boolean, Number  Function, Global, Error, RegExp , Object
+    -创建字符串对象的两种方式
+      -var str1= "hello"基本数据类型存储
+      -var str2 = new String("hello")按照对象存储
+    -String方法
+      -格式编排方法：str.italics（斜体）
+      -大小写转换：toLowerCase,toUpperCase
+      -获取指定字符：x.charAt(index)（取字符），x.charCodeAt(index)（取Unicode编码）
+      -查询索引：var str2=str1.indexOf("a")，第一个a的索引，var str3=str1.lastIndexOf("a");最后一个a的索引
+      -截取字符串：x.substr(start, length)，x.substring(start, end)start=<zifu<end,x.slice(start, end)
+      -替换：var str2=str1.replace("cd","aaa")
+      -分割：var strArray=str1.split(",")
+      -连接：var str2=str1.concat("efgh")
+    
+    -Array对象
+      -创建方式
+        -var arr = [1,2,3]
+        -var arr = new Array(10)逐个赋值
+        -var arr= new Array(1,2,3,4)
+      -方法
+        -连接：
+          -join:var str1=arr1.join("-");每个元素以"-"连接
+          -concat:var b=a.concat(4,5);给数组添加4,5
+        -排序：
+          -reverse:颠倒数组顺序
+          -sort:数组排序（按照最高位大小排序）
+        -切片：x.slice(start, end)
+        -删除子数组（可以实现插入）
+          -x. splice(start, deleteCount, value, ...)start表示开始位置索引，deleteCount删除数组元素的个数，value表示在删除位置插入的数组元素
+        -数组进出栈操作
+          -push pop这两个方法模拟的是一个栈操作（先进后出）
+            -x.push(value, ...)  压栈（在数组后面插入）
+            -x.pop()弹栈
+          -shift和unshift
+            -x.unshift(value,...)：在数组前面插入
+            -shift：从数组前面删除
+      
+    -function对象
+      -定义：function f(){xxx  return}或者：var 函数名 = new Function("参数1","参数n","function_body");
+      -js的函数加载执行与python不同，它是整体加载完才会执行，所以执行函数放在函数声明上面或下面都可以
+      -函数属性
+        -length:函数的length声明了函数期望的参数个数
+      -调用：函数名()
+      -内置对象arguments：获取传递过来函数的参数
+      -匿名函数
+        -var func = function(arg){
+          return "xxx"
+        }
+        func(xxx),不能放在函数定义上面
+        -(function(arg){
+          console.log(arg)
+        })("123")自执行函数
+      
+  
