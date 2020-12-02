@@ -5,4 +5,30 @@ jQuery
   -基本选择器：
     -$("*")  $("#id")   $(".class")  $("element")  $(".class,p,div")
   -层级选择器
-    -$(".outer div")  $(".outer>div")   $(".outer+div")  $(".outer~div")
+    -$(".outer div")后代选择器
+    -$(".outer>div")子代选择器
+    -$(".outer+div")兄弟选择器（向下紧挨着的）
+    -$(".outer~div")兄弟选择器（向下不需要紧挨着）（sibling不受方向限制）
+  -基本筛选器
+    -$("li:first")第一个li（last是最后一个）
+    -$("li:eq(2)")第3个li标签
+    -$("li:even")偶数下标的li（odd奇数下标的li）
+    -$("li:gt(2)")大于3的li
+  -属性选择器
+    -$('[id="div1"]')id属性
+    -$('["alex="sb"][id]')自定义alex属性
+  -表单选择器
+    -$("[type='text']")----->$(":text")         注意只适用于input标签  : $("input:checked")
+
+2，筛选器
+  -过滤筛选器
+    -$("li").eq(2)（推荐使用）
+    -$("li").first()（推荐使用）
+    -$("ul li").hasclass("test")
+  -查找筛选器
+    -$("div").children(".test")找div内子代的test     $("div").find(".test")  找div下的所有test                         
+    -$(".test").next()找test下一个标签    $(".test").nextAll()找test下面所有的标签    $(".test").nextUntil()找test下到某个开区间内的标签
+    -$("div").prev()找div的上一个标签  $("div").prevAll()上面所有  $("div").prevUntil()上面的开区间   
+    -$(".test").parent()找test的父标签  $(".test").parents()一直找到最外层  $(".test").parentUntil() 祖先的开区间
+    -$("div").siblings()找div的兄弟标签
+   
