@@ -1,0 +1,8 @@
+jQuery
+  -基本语法：$(selector).action()    jQuery等同于$
+
+1，选择器
+  -基本选择器：
+    -$("*")  $("#id")   $(".class")  $("element")  $(".class,p,div")
+  -层级选择器
+    -$(".outer div")  $(".outer>div")   $(".outer+div")  $(".outer~div")
