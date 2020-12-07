@@ -1,5 +1,9 @@
 jQuery
   -基本语法：$(selector).action()    jQuery等同于$
+  -var $variable = jQuery 对象
+  -var variable = DOM 对象
+
+  -$variable[0]：jquery对象转为dom对象      $("#msg").html(); $("#msg")[0].innerHTML
 
 1，选择器
   -基本选择器：
@@ -31,4 +35,70 @@ jQuery
     -$("div").prev()找div的上一个标签  $("div").prevAll()上面所有  $("div").prevUntil()上面的开区间   
     -$(".test").parent()找test的父标签  $(".test").parents()一直找到最外层  $(".test").parentUntil() 祖先的开区间
     -$("div").siblings()找div的兄弟标签
+    -hasclass("class1"):判断是否有class1的class
+  
+3，属性操作
+  ---------------------------属性
+  -$("").attr();(一个参数，是取对应属性值，两个参数是设置属性)，一般用来处理用户自定义属性
+  -$("").removeAttr();
+  -$("").prop();与attr用法一样，一般用来处理固有的属性
+  -$("").removeProp();
+  --------------------------CSS类
+  -$("").addClass(class|fn)
+  -$("").removeClass([class|fn])
+  --------------------------HTML代码/文本/值
+  -$("").html([val|fn])
+  -$("").text([val|fn])
+  -$("").val([val|fn|arr])针对固有的value取值
+  ----------------------------
+  -$("").css("color","red")
+  
+4，遍历操作
+  -方法1
+    -$.each(arr,function(x,y){x是下标，y是值}),arr：数组
+  -方法2
+    -$.("element").each(function(){})
+
+5，文档处理
+  -//内部插入
+    -$("").append(content|fn)      ----->$("p").append("<b>Hello</b>");在p中插入
+    -$("").appendTo(content)       ----->$("p").appendTo("div");将p插入div
+    -$("").prepend(content|fn)     ----->$("p").prepend("<b>Hello</b>");
+    -$("").prependTo(content)      ----->$("p").prependTo("#foo");
+
+  -//外部插入
+    -$("").after(content|fn)       ----->$("p").after("<b>Hello</b>");
+    -$("").before(content|fn)      ----->$("p").before("<b>Hello</b>");
+    -$("").insertAfter(content)    ----->$("p").insertAfter("#foo");
+    -$("").insertBefore(content)   ----->$("p").insertBefore("#foo");
+
+  -//替换
+    -$("").replaceWith(content|fn) ----->$("p").replaceWith("<b>Paragraph. </b>");
+
+  -//删除
+    -$(".div1").empty()清空div1内的内容（保留div1）
+    -$("div1").remove([expr])移除div1
+
+  -//复制
+    -$("").clone([Even[,deepEven]])，cloen(true)则是不克隆事件
+    
+6，css操作
+  -位置
+    -offset(),(只有top和left俩属性，相对于窗口的偏移量)
+    -position(),(相对于已经定位的父标签的偏移量)
+    -scrollTop(),上下滚动条位置
+    -scrollLeft(),左右滚动条位置
+  -尺寸
+    -$("").height([val|fn]):内容的高度
+    -$("").width([val|fn]):内容的宽度
+    -$("").innerHeight():高度包括pading,不包括border
+    -$("").innerWidth():宽度包括padding,不包括border
+    -$("").outerHeight([soptions]):包括border 参数为true时，考虑margin
+    -$("").outerWidth([options]):包括border
+
+7，事件绑定和委托
+  -绑定：$("").click(function(){})或$("").bind("click",funtion(){}),两个方法等同
+  -委托：$("ul").on("click","li",function(){})，给ul绑定事件，委托给了li，动态创建li时，事件也会绑定
+  
+  
    
