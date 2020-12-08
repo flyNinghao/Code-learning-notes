@@ -100,5 +100,9 @@ jQuery
   -绑定：$("").click(function(){})或$("").bind("click",funtion(){}),两个方法等同
   -委托：$("ul").on("click","li",function(){})，给ul绑定事件，委托给了li，动态创建li时，事件也会绑定
   
-  
+8，插件机制
+  -用jquery写插件
+    -$.extend(func)：为jQuery添加一个静态方法,$.func
+    -$.fn.extend(func):为JQuery实例添加一个方法,$("").func
+    
    
