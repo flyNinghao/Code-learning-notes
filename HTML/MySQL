@@ -26,8 +26,8 @@ Mysql
     -使用数据库
       -切换数据库 use db_name; -- 注意：进入到某个数据库后没办法再退回之前状态，但可以通过use进行切换
       -查看当前使用的数据库 select database();
-
-4，数据类型
+    
+3，数据类型
   -数值类型
     -TINYINT  1字节   (-128,127)   小整数
     -SMALLINT 2字节   大整数值
@@ -36,3 +36,111 @@ Mysql
     -BIGINT 8字节
     -FLOAT 4字节，单精度浮点型
     -DOUBLE 8字节 双精度浮点型
+    -DECIMAL DECIMAL(M,D),长度是M和D中较大值+2   小数值
+    
+  -日期类型
+    -DATE  3字节  1000-01-01/9999-12-31    YYYY-MM-DD   日期值
+    -TIME  3字节  -838:59:59/838:59:59   HH:MM:SS   时间或持续时间
+    -YEAR  1字节  1901/2155    YYYY   年份值
+    -DATETIME 8字节  1000-01-01 00:00:00:00/9999-12-31 23:59:59  混合日期和时间
+    -TIMESTAMP 4字节  1970-01-01 00:00:00/年某时   YYYYMMDDHHMMSS  时间戳
+  
+  -字符串类型
+    -CHAR   0-255字节   定长字符串
+    -VARCHAR  0-65535字节  变长字符串
+    -TINYBLOB  0-255字节   二进制字符串
+    -TINYTEXT  0-255字节   短文本字符串
+    -BLOB   0-65535字节   二进制长文本
+    -TEXT   0-65535字节   长文本
+    -MEDIUMBLOB  0-16777215字节  二进制文本
+    -MEDIUMTEXT  0-16777215字节  文本
+    -LONGBLOB   0-4294967295字节
+    -LONGTEXT   0-4294967295字节
+    
+4，基础操作
+  -创建表
+    -create table tab_name
+  -查看表信息
+    -DESC(DESCRIBE) tab_name 查看表结构
+    -SHOW COLUMNS FROM tab_name 查看表结构
+    -SHOW TABLES 查看当前数据库所有表
+    -SHOW CREATE TABLE tab_name 查看当前数据库表建表语句
+  -修改表结构
+    -增加列
+      -alter table tab_name add [column] 列名 类型［完整性约束条件］［first｜after 字段名］;
+    -修改一列类型
+      -alter table tab_name modify 列名 类型 [完整性约束条件]［first｜after 字段名］;
+    -修改列名
+      -alter table tab_name change [column] 列名 新列名 类型 [完整性约束条件]［first｜after 字段名］;
+    -删除一列
+      -alter table tab_name drop [column] 列名;
+    -修改表名
+      -rename table 表名 to 新表名;
+    -修该表所用的字符集    
+      -alter table student character set utf8
+  -删除表
+    -drop table tab_name
+  -添加主键，删除主键
+    -alter table tab_name add primary key(字段名称,...) 
+    -alter table users drop primary key;
+
+5,增删改查
+  -增
+    -insert into tab_name (column_name1,column_name2,....) values(val1,val2,......)
+    -insert into tab_name values (val1,val2,....),(value1,value2,....)
+    -insert into tab_name set column1=val1,column2=val2..
+  -删
+    -delete from tab_name [where 条件]:将表内的记录一条一条删除
+    -truncate table tab_name:将表整个删除，再创建一个一样表明的表
+  -改
+    -update tab_name set column1=value,column2=value2..[where 条件]
+  -查
+    -select [distinct] *|field1，field2，......   from tab_name
+        -- 其中from指定从哪张表筛选，*表示查找所有列，也可以指定一个列
+        -- 表明确指定要查找的列，distinct用来剔除重复行。
+    -select 也可以使用表达式，并且可以使用: 字段 as 别名或者:字段 别名
+    -使用where子句，进行过滤查询。
+      -where字句中可以使用：
+        -比较运算符
+          -> < >= <= <> !=
+          -between 80 and 100 值在10到20之间
+          -in(80,90,100) 值是10或20或30
+          -like 'yuan%'
+        -逻辑运算符
+          -在多个条件直接可以使用逻辑运算符 and or not
+      
+    -Order by 指定排序的列，排序的列即可是表中的列名，也可以是select 语句后指定的别名
+      -select *|field1,field2... from tab_name order by field [Asc|Desc]
+      -Asc 升序、Desc 降序，其中asc为默认值 ORDER BY 子句应位于SELECT语句的结尾。
+    -group by 分组查询
+      -注意,按分组条件分组后每一组只会显示第一条记录
+      -group by字句，其后可以接多个列名，也可以跟having子句,对group by 的结果进行筛选。
+    
+    -聚合函数
+      -COUNT(列名)：统计行的个数
+      -SUM(列名)：统计满足条件的行的内容和
+      -AVG(列名)：平均值
+      -Max、Min：最大最小值
+      -with rollup的使用
+    -Mysql在执行sql语句时的执行顺序：from  where  select group by  having order by
+    -limit a,b 跳过a条，显示b条
+    -正则表达式进行过滤
+    -ifnull函数ifnull(a,b),a的值是null，null变成b
+
+6，外键约束
+  -主键：非空且唯一
+  -外键：foreign key两张关联表之间的约束
+    -创建：ALTER TABLE student  ADD CONSTRAINT abc foreign key(外键) references 关联表(关联列名)（CONSTRAINT abc 定义外键名字）
+    -删除：ALTER TABLE student DROP FOREIGN KEY abc;
+    -作为外键，一定要和主表的数据类型保持一致
+    -外键约束对子表的含义:如果在父表中找不到候选键,则不允许在子表上进行insert/update
+    -外键约束对父表的含义:在父表上进行update/delete以更新或删除在子表中有一条或多条对应匹配行的候选键时,父表的行为取决于：在定义子表的外键时指定的on update/on delete子句
+    -级联处理
+      -cascade方式 在父表上update/delete记录时，同步update/delete掉子表的匹配记录
+        -外键的级联删除：如果父表中的记录被删除，则子表中对应的记录自动被删除
+        -FOREIGN KEY (charger_id) REFERENCES ClassCharger(id) ON DELETE CASCADE
+      -set null方式 在父表上update/delete记录时，将子表上匹配记录的列设为null（要注意子表的外键列不能为not null）
+        -FOREIGN KEY (charger_id) REFERENCES ClassCharger(id) ON DELETE SET NULL
+      -Restrict方式 :拒绝对父表进行删除更新操作(了解)
+      -No action方式 在mysql中同Restrict,如果子表中有匹配的记录,则不允许对父表对应候选键进行update/delete操作（了解）
+    
