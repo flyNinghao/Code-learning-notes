@@ -174,3 +174,5 @@ Mysql
   -添加索引
     -create [unique|fulltext|spatial] index 索引名 on 表名 (字段名[(长度)] [ASC|DESC])
     -alter table 表名 ADD [unique|fulltext|spatial] index 索引名 on 表名 (字段名[(长度)] [ASC|DESC])
+  -删除索引
+    -drop index 索引名 on 表名
