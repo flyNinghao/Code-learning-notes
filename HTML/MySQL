@@ -183,4 +183,4 @@ Mysql
     -start transaction 开启事务
     -Rollback 回滚事务,即撤销指定的sql语句(只能回退insert delete update语句)，回滚到上一次commit的位置
     -Commit 提交事务，提交未存储的事务
-    -savepoint保留点，事务处理中设置的临时占位符，你可以对它发布回退(与整个事务回退不同) 
+    -savepoint保留点，事务处理中设置的临时占位符，你可以对它发布回退(与整个事务回退不同) ,事务内每一条sql语句后面添加保留点，rollback to 保留点名字
