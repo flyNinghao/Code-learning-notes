@@ -143,4 +143,34 @@ Mysql
         -FOREIGN KEY (charger_id) REFERENCES ClassCharger(id) ON DELETE SET NULL
       -Restrict方式 :拒绝对父表进行删除更新操作(了解)
       -No action方式 在mysql中同Restrict,如果子表中有匹配的记录,则不允许对父表对应候选键进行update/delete操作（了解）
-    
+
+7，多表查询
+  -连接查询
+    -内连接：inner join：查询两张表中都有的关联数据,相当于利用条件从笛卡尔积结果中筛选出了正确的结果
+      -select * from tableA,tableB where tableA.id = tableB.id;
+      -select * from tableA inner join tableB on tableA.id = tableB.id;
+      (笛卡尔积结果：A表中有m条数据，B表有n条，直接查询tableA,tableB,返回的是m*n条数据)
+    -外连接：
+      -left join:以左表为主去匹配，匹配不到的显示null（左表所有数据都会显示）
+      -right join:同上
+      -全外连接(full join)
+        -全外连接：在内连接的基础上增加左边有右边没有的和右边有左边没有的结果
+        -mysql不支持全外连接 full JOIN
+        -Union:可以通过left join union right join实现全连接的效果，union会去重
+    -复合查询与子查询
+      -复合条件查询：and or 多条件查询
+      -子查询：子查询是将一个查询语句嵌套在另一个查询语句中
+      -子查询中可以包含：IN、NOT IN、ANY、ALL、EXISTS 和 NOT EXISTS等关键字
+      -还可以包含比较运算符：= 、 !=、> 、<等
+
+8，索引（mysql中也叫健）
+  -特点：创建与维护索引会消耗很多的时间与磁盘空间，但查询速度大大提高
+  -语法创建：创建表时，在字段创建好后，[unique|fulltext|spatial] index|key [索引名] (字段名[(长度)] [ASC|DESC])
+  -普通索引（index|key）
+  -唯一索引:在index前面加unique，唯一索引的字段不能重复
+  -全文索引:index前加fulltext
+  -多列索引:index [索引名] (字段1，字段2)
+  
+  -添加索引
+    -create [unique|fulltext|spatial] index 索引名 on 表名 (字段名[(长度)] [ASC|DESC])
+    -alter table 表名 ADD [unique|fulltext|spatial] index 索引名 on 表名 (字段名[(长度)] [ASC|DESC])
