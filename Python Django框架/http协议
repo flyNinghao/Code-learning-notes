@@ -23,3 +23,104 @@
       -1. 在浏览器的地址栏中直接给出URL，那么就一定是GET请求
       -2. 点击页面上的超链接也一定是GET请求
       -3. 提交表单时，表单默认使用GET请求，但可以设置为POST
+    
+      Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+      Accept-Encoding:gzip, deflate, sdch
+      Accept-Language:zh-CN,zh;q=0.8
+      Cache-Control:no-cache
+      Connection:keep-alive
+      Cookie:csrftoken=z5H43ZwARx7AIJ82OEizBOWbsAQA2LPk
+      Host:127.0.0.1:8090
+      Pragma:no-cache
+      Upgrade-Insecure-Requests:1
+      User-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.89 Safari/537.36
+      Name
+      login/
+      1 requests ❘ 737 B transferred ❘ Finish: 5 ms ❘ DOMContentLoaded: 14 ms ❘ Load: 14 ms
+      
+      GET 127.0.0.1:8090/login  HTTP/1.1：GET请求，请求服务器路径为  127.0.0.1:8090/login ，协议为1.1；q为权重
+      Host:localhost：请求的主机名为localhost；
+      *User-Agent: Mozilla/5.0 (Windows NT 5.1; rv:5.0) Gecko/20100101 Firefox/5.0：与浏览器和OS相关的信息。有些网站会显示用户的系统版本和浏览器版本信息，这都是通过获取User-Agent头信息而来的；
+      Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8：告诉服务器，当前客户端可以接收的文档类型，其实这里包含了*/*，就表示什么都可以接收；
+      Accept-Language: zh-cn,zh;q=0.5：当前客户端支持的语言，可以在浏览器的工具选项中找到语言相关信息；
+      Accept-Encoding: gzip, deflate：支持的压缩格式。数据在网络上传递时，可能服务器会把数据压缩后再发送；
+      Accept-Charset: GB2312,utf-8;q=0.7,*;q=0.7：客户端支持的编码；
+      Connection: keep-alive：客户端支持的链接方式，保持一段时间链接，默认为3000ms；
+      Cookie: JSESSIONID=369766FDF6220F7803433C0B2DE36D98：因为不是第一次访问这个地址，所以会在请求中把上一次服务器响应中发送过来的Cookie在请求中一并发送去过；这个Cookie的名字为JSESSIONID。
+      
+    -注意
+      HTTP无状态：无状态是指协议对于事务处理没有记忆能力，服务器不知道客户端是什么状态。从另一方面讲，打开一个服务器上的网页和你之前打开这个服务器上的网页之间没有任何联系
+      如果你要实现一个购物车，需要借助于Cookie或Session或服务器端API（如NSAPI and ISAPI）记录这些信息，请求服务器结算页面时同时将这些信息提交到服务器
+      当你登录到一个网站时，你的登录状态也是由Cookie或Session来“记忆”的，因为服务器并不知道你是否登录
+      优点：服务器不用为每个客户端连接分配内存来记忆大量状态，也不用在客户端失去连接时去清理内存，以更高效地去处理WEB业务
+      缺点：客户端的每次请求都需要携带相应参数，服务器需要处理这些参数
+
+      容易犯的误区：
+      1、HTTP是一个无状态的面向连接的协议，无状态不代表HTTP不能保持TCP连接，更不能代表HTTP使用的是UDP协议（无连接）
+      2、从HTTP/1.1起，默认都开启了Keep-Alive，保持连接特性，简单地说，当一个网页打开完成后，客户端和服务器之间用于传输
+      HTTP数据的TCP连接不会关闭，如果客户端再次访问这个服务器上的网页，会继续使用这一条已经建立的连接
+      3、Keep-Alive不会永久保持连接，它有一个保持时间，可以在不同的服务器软件（如Apache）中设定这个时间
+      
+  -POST请求
+    (1). 数据不会出现在地址栏中
+    (2). 数据的大小没有上限
+    (3). 有请求体
+    (4). 请求体中如果存在中文，会使用URL编码！
+      -username=%E5%BC%A0%E4%B8%89&password=123
+
+    Request Headers
+    Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+    Accept-Encoding:gzip, deflate
+    Accept-Language:zh-CN,zh;q=0.8
+    Cache-Control:no-cache
+    Connection:keep-alive
+    Content-Length:13
+    Content-Type:application/x-www-form-urlencoded
+    Cookie:csrftoken=z5H43ZwARx7AIJ82OEizBOWbsAQA2LPk
+    Host:127.0.0.1:8090
+    Origin:http://127.0.0.1:8090
+    Pragma:no-cache
+    Referer:http://127.0.0.1:8090/login/
+    Upgrade-Insecure-Requests:1
+    User-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) 
+               AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.89 Safari/537.36
+
+    ---------------------------请求体
+    Form Data
+    username:yuan
+
+    POST请求是可以有体的，而GET请求不能有请求体。
+    -Referer: http://localhost:8080/hello/index.jsp：请求来自哪个页面，例如你在百度上点击链接到了这里，那么Referer:http://www.baidu.com；如果你是在浏览器的地址栏中直接输入的地址，那么就没有Referer这个请求头了；
+    -Content-Type: application/x-www-form-urlencoded：表单的数据类型，说明会使用url格式编码数据；url编码的数据都是以“%”为前缀，后面跟随两位的16进制。
+    -Content-Length:13：请求体的长度，这里表示13个字节。
+    -keyword=hello：请求体内容！hello是在表单中输入的数据，keyword是表单字段的名字。
+
+3，响应协议
+  -响应协议的格式如下：
+    -响应首行；
+    -响应头信息；
+    -空行；
+    -响应体。
+  
+    响应内容是由服务器发送给浏览器的内容，浏览器会根据响应内容来显示。遇到<img src=''>会开一个新的线程加载，所以有时图片多的话，内容会先显示出来，然后图片才一张张加载出来。
+    
+    Request URL:http://127.0.0.1:8090/login/
+    Request Method:GET
+    Status Code:200 OK
+    Remote Address:127.0.0.1:8090
+    Response Headers
+    view source
+    Content-Type:text/html; charset=utf-8
+    Date:Wed, 26 Oct 2016 06:48:50 GMT
+    Server:WSGIServer/0.2 CPython/3.5.2
+    X-Frame-Options:SAMEORIGIN
+    
+    HTTP/1.1 200 OK：响应协议为HTTP1.1，状态码为200，表示请求成功，OK是对状态码的解释；
+    Server:WSGIServer/0.2 CPython/3.5.2：服务器的版本信息；
+    Content-Type: text/html;charset=UTF-8：响应体使用的编码为UTF-8；
+    Content-Length: 724：响应体为724字节；
+    Set-Cookie: JSESSIONID=C97E2B4C55553EAB46079A4F263435A4; Path=/hello：响应给客户端的Cookie；
+    Date: Wed, 25 Sep 2012 04:15:03 GMT：响应的时间，这可能会有8小时的时区差
+    
+  
+    
