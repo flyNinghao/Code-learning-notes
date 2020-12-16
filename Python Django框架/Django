@@ -1,1 +1,97 @@
-框架
+1，Django项目目录
+    mysite
+      - mysite    # 对整个程序进行配置
+      - init      #一个空文件，它告诉Python这个目录应该被看做一个Python包
+      - settings    # 项目配置文件
+      - url      # URL对应关系（路由）
+      - wsgi     # 遵循WSIG规范，uwsgi + nginx
+  - manage.py     # 一个命令行工具，可以使你用多种方式对Django项目进行交互
+
+2，Django APP
+  创建app后，需要在settings里的INSTALLED_APPS添加APP的名称
+  
+  应用文件夹目录
+    │blog                 #应用目录
+    │  admin.py        #对应应用后台管理配置文件。
+    │  apps.py         #对应应用的配置文件。
+    │  models.py       #数据模块，数据库设计就在此文件中设计。后面重点讲解
+    │  tests.py        #自动化测试模块，可在里面编写测试脚本自动化测试
+    │  views.py        #视图文件，用来执行响应代码的。你在浏览器所见所得都是它处理的。
+    │  __init__.py
+    │
+    ├─migrations        #数据迁移、移植文目录，记录数据库操作记录，内容自动生成。
+    │  │  __init__.py
+
+3，Django 常用命令
+  -安装Django： pip install django  指定版本 pip3 install django==2.0
+  -新建项目： django-admin.py startproject mysite
+  -新建APP : python manage.py startapp blog
+  -启动：python manage.py runserver 8080
+  -同步或者更改生成 数据库：
+    -python manage.py makemigrations
+    -python manage.py migrate
+  -清空数据库： python manage.py flush
+  -创建管理员： python manage.py createsuperuser
+  -修改用户密码： python manage.py changepassword username
+  -Django项目环境终端： python manage.py shell
+    -这个命令和 直接运行 python 进入 shell 的区别是：你可以在这个 shell 里面调用当前项目的 models.py 中的 API，对于操作数据的测试非常方便。
+
+4，url控制器
+  urlpatterns = [
+    path(正则表达式, views视图函数，参数，别名),
+  ]
+  参数说明：
+  -一个正则表达式字符串
+  -一个可调用对象，通常为一个视图函数或一个指定视图函数路径的字符串
+  -可选的要传递给视图函数的默认参数（字典形式）
+  -一个可选的name参数(别名)
+
+  -实例
+    from django.urls import path
+    from . import views
+    urlpatterns = [
+        path('articles/2003/', views.special_case_2003),
+        path('articles/<int:year>/', views.year_archive),
+        path('articles/<int:year>/<int:month>/', views.month_archive),
+        path('articles/<int:year>/<int:month>/<slug:slug>/', views.article_detail),
+        ]
+    -注意：
+      要捕获一段url中的值，需要使用尖括号，而不是之前的圆括号；
+      可以转换捕获到的值为指定类型，比如例子中的<int:name>。默认情况下，捕获到的结果保存为字符串类型，不包含/这个特殊字符；
+      规则的前面不需要添加/，因为默认情况下，每个url都带一个最前面的/。比如：articles, 不能写成 /articles。
+    -Django默认情况下内置下面的路径转换器：
+      -str：匹配任何非空字符串，但不含斜杠/，如果你没有专门指定转换器，那么这个是默认使用的；
+      -int：匹配0和正整数，返回一个int类型
+      -slug：可理解为注释、后缀、附属等概念，是url拖在最后的一部分解释性字符。该转换器匹配任何ASCII字符以及连接符和下划线，比如’ building-your-1st-django-site‘；
+      -uuid：匹配一个uuid格式的对象。为了防止冲突，规定必须使用破折号，所有字母必须小写，例如’075194d3-6885-417e-a8a8-6c931e272f00‘ 。返回一个UUID对象；
+      -path：匹配任何非空字符串，重点是可以包含路径分隔符’/‘。这个转换器可以帮助你匹配整个url而不是一段一段的url字符串。
+    -使用正则表达式
+      -如果路径和转换器语法不足以定义URL模式，也可以使用正则表达式。这时我们就需要使用re_path()而不是path()；
+      -在Python正则表达式中，命名正则表达式组的语法是 (?P<name>pattern)，其中name是组的名称，pattern是需要匹配的规则。
+
+5，路由分层模块化（路由分发）
+  -通常，我们会在每个app里，各自创建一个urls.py路由模块，然后从根路由出发，将app所属的url请求，全部转发到相应的urls.py模块中。
+    from django.urls import include, path
+    urlpatterns = [
+        # ... snip ...
+        path('community/', include('aggregator.urls')),
+        path('contact/', include('contact.urls')),
+        # ... snip ...
+    ]
+  -路由转发使用的是include()方法，需要提前导入，它的参数是转发目的地路径的字符串，路径以圆点分割。
+  -注意，这个例子中的正则表达式没有包含$（字符串结束匹配符），但是包含一个末尾的斜杠。 每当Django 遇到include()（来自django.conf.urls.include()）时，它会去掉URL中匹配的部分并将剩
+   下的字符串发送给include的URLconf做进一步处理，也就是转发到二级路由去。
+  
+  -通过url()实例的列表去冗余：
+    extra_patterns = [
+        path('reports/', credit_views.report),
+        path('reports/<int:id>/', credit_views.report),
+        path('charge/', credit_views.charge),
+    ]
+    urlpatterns = [
+        path('', main_views.homepage),
+        path('help/', include('apps.help.urls')),
+        path('credit/', include(extra_patterns)),
+    ]
+  -被转发的URLconf会收到来自父URLconf捕获的所有参数
+  
