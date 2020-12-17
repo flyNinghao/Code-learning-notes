@@ -100,3 +100,18 @@
     -re_path(r'^comments/(?:page-(?P<page_number>\d+)/)?$', comments)#关键字page_number参数
   -额外参数(字典)
     path('blog/<int:year>/', views.year_archive, {'foo': 'bar'}),#year_archive(year=year,foo=bar)
+    -include传递额外参数，参数会传递给include指向的urlconf中的每一行
+        # main.py
+        from django.urls import include, path
+        urlpatterns = [
+            path('blog/', include('inner'), {'blog_id': 3}),
+        ]
+        # inner.py
+        from django.urls import path
+        from mysite import views
+        urlpatterns = [
+            path('archive/', views.archive),#{'blog_id': 3}会传入views.archive
+            path('about/', views.about),#{'blog_id': 3}会传入views.about
+        ]
+6，url反向解析
+  
