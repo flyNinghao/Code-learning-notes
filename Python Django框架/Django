@@ -114,4 +114,11 @@
             path('about/', views.about),#{'blog_id': 3}会传入views.about
         ]
 6，url反向解析
+  url中的name属性，为url增加别名，可以通过此别名对url进行反查（通过别名，当url发生改变时，无需逐个对url进行修改）
+    urlpatterns = [
+            path('archive/', views.archive,name="bieming"),
+        ]
+    在html中可以通过模板语言获取到该url,{% url 'bieming' %}
+    在python中通过reverse或反查：
+      return HttpResponseRedirect(reverse('news-year-archive'))
   
