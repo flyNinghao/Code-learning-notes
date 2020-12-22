@@ -122,3 +122,383 @@
     在python中通过reverse或反查：
       return HttpResponseRedirect(reverse('news-year-archive'))
   
+7，全局配置文件settings
+  -配置静态文件
+    #STATIC_URL = '/static/'为静态文件别名
+    STATIC_URL = '/static/'
+    #静态文件地址拼接，后面'static'文件为自己建立的存放静态文件（JS，IMG，CSS）的文件名
+    STATICFILES_DIRS = (
+        os.path.join(BASE_DIR, 'static'), #主文件下静态文件
+        os.path.join(BASE_DIR,"blog","statics"),#项目blog文件下静态文件
+    )
+  
+  -mysql数据库配置
+    ########在setting原来默认的sqlite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
+    ############修改成mysql如下
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'test',    #你的数据库名称
+            'USER': 'root',   #你的数据库用户名
+            'PASSWORD': '19941028', #你的数据库密码
+            'HOST': '', #你的数据库主机，留空默认为localhost
+            'PORT': '3306', #你的数据库端口
+        }}
+    #由于mysql默认引擎为MySQLdb，在__init__.py文件中添加下面代码
+    #在python3中须替换为pymysql,可在主配置文件（和项目同名的文件下，不是app配置文件）中增加如下代码
+    import pymysql
+    pymysql.install_as_MySQLdb()
+    
+  -设置打印日志到屏幕
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'django.db.backends': {
+                'handlers': ['console'],
+                'propagate': True,
+                'level': 'DEBUG',
+            },
+        }
+    }
+    当你的操作与数据库相关时 会将我们的写的语句翻译成sql语句在服务端打印。
+  
+  -语言
+    LANGUAGE_CODE = 'en-us'# 默认
+    LANGUAGE_CODE = 'zh-hans'# 改为中文，主要针对admin页面
+    
+  -注册APP
+    INSTALLED_APPS = [
+     'django.contrib.admin',
+     'django.contrib.auth',
+     'django.contrib.contenttypes',
+     'django.contrib.sessions',
+     'django.contrib.messages',
+     'django.contrib.staticfiles',
+     'app1.apps.App1Config', 
+     # 默认已有 如果没有只要添加app名称即可 例如： 'blog'
+     # 新建的应用都要在这里添加
+    ]
+  
+  -如果数据库中的UserInfo(用户表)继承django内置AbstractUser
+    -model导入：from django.contrib.auth.models import AbstractUser
+    -Settings文件里添加：AUTH_USER_MODEL = "应用名.UserInfo"
+  
+  -中间件，自己写的中间件，例如在项目中的md文件夹下md.py文件中的M1与M2两个中间件
+    MIDDLEWARE = [
+     'django.middleware.security.SecurityMiddleware',
+     'django.contrib.sessions.middleware.SessionMiddleware',
+     'django.middleware.common.CommonMiddleware',
+     'django.middleware.csrf.CsrfViewMiddleware',
+     'django.contrib.auth.middleware.AuthenticationMiddleware',
+     'django.contrib.messages.middleware.MessageMiddleware',
+     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     'md.md.M1',
+     'md.md.M2',
+    ]
+  
+  -session存储的相关配置
+    -数据库配置（默认）
+      Django默认支持Session，并且默认是将Session数据存储在数据库中，即：django_session 表中。
+      配置 settings.py
+       SESSION_ENGINE = 'django.contrib.sessions.backends.db' # 引擎（默认）
+       SESSION_COOKIE_NAME ＝ "sessionid"   # Session的cookie保存在浏览器上时的key，即：sessionid＝随机字符串（默认）
+       SESSION_COOKIE_PATH ＝ "/"    # Session的cookie保存的路径（默认）
+       SESSION_COOKIE_DOMAIN = None    # Session的cookie保存的域名（默认）
+       SESSION_COOKIE_SECURE = False    # 是否Https传输cookie（默认）
+       SESSION_COOKIE_HTTPONLY = True    # 是否Session的cookie只支持http传输（默认）
+       SESSION_COOKIE_AGE = 1209600    # Session的cookie失效日期（2周）（默认）
+       SESSION_EXPIRE_AT_BROWSER_CLOSE = False   # 是否关闭浏览器使得Session过期（默认）
+       SESSION_SAVE_EVERY_REQUEST = False   # 是否每次请求都保存Session，默认修改之后才保存（默认）
+    -缓存配置
+      配置 settings.py
+       SESSION_ENGINE = 'django.contrib.sessions.backends.cache' # 引擎
+       SESSION_CACHE_ALIAS = 'default'    # 使用的缓存别名（默认内存缓存，也可以是memcache），此处别名依赖缓存的设置
+       SESSION_COOKIE_NAME ＝ "sessionid"   # Session的cookie保存在浏览器上时的key，即：sessionid＝随机字符串
+       SESSION_COOKIE_PATH ＝ "/"    # Session的cookie保存的路径
+       SESSION_COOKIE_DOMAIN = None    # Session的cookie保存的域名
+       SESSION_COOKIE_SECURE = False    # 是否Https传输cookie
+       SESSION_COOKIE_HTTPONLY = True    # 是否Session的cookie只支持http传输
+       SESSION_COOKIE_AGE = 1209600    # Session的cookie失效日期（2周）
+       SESSION_EXPIRE_AT_BROWSER_CLOSE = False   # 是否关闭浏览器使得Session过期
+       SESSION_SAVE_EVERY_REQUEST = False   # 是否每次请求都保存Session，默认修改之后才保存
+    
+    -配置文件上传目录
+      #设置文件上传路径
+      MEDIA_URL = '/media/'
+      MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+      如果想在浏览器里访问自己上传的文件则需要在urls.py做如下设置：
+      from django.views.static import serve
+      from django.conf import settings
+
+      urlpatterns = [
+          ...
+          re_path('^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+      ]
+
+8，view视图
+  -http请求中产生两个核心对象：
+    -http请求：HttpRequest对象
+    -http响应：HttpResponse对象
+  
+  -HttpRequest对象的属性和方法：
+    -path：请求页面的全路径，不包括域名
+    -method：请求中使用的HTTP方法的字符串表示。全大写表示
+      服务器收到空的POST请求的情况也是可能发生的，也就是说，表单form通过
+      #HTTP POST方法提交请求，但是表单中可能没有数据，因此不能使用
+      #if req.POST来判断是否使用了HTTP POST 方法；应该使用  if req.method=="POST"
+    -GET:包含所有HTTP GET参数的类字典对象
+    -POST：包含所有HTTP POST参数的类字典对象
+    -COOKIES:包含所有cookies的标准Python字典对象；keys和values都是字符串。
+    -FILES：包含所有上传文件的类字典对象；FILES中的每一个Key都是<input type="file" name="" />标签中name属性的值，FILES中的每一个value同时也是一个标准的python字典对象，包含下面三个Keys：
+      -filename：上传文件名，用字符串表示
+      -content_type:上传文件的Content Type
+      -content：上传文件的原始内容
+    -user：是一个django.contrib.auth.models.User对象，代表当前登陆的用户。如果访问用户当前
+           没有登陆，user将被初始化为django.contrib.auth.models.AnonymousUser的实例。你
+           可以通过user的is_authenticated()方法来辨别用户是否登陆：
+           if req.user.is_authenticated();只有激活Django中的AuthenticationMiddleware
+           时该属性才可用
+    -session：唯一可读写的属性，代表当前会话的字典对象；自己有激活Django中的session支持时该属性才可用。
+    
+    -方法
+      -get_full_path(),   比如：http://127.0.0.1:8000/index33/?name=123 ,req.get_full_path()得到的结果就是/index33/?name=123
+      -req.path:/index33
+      -request.POST.getlist('')
+    
+  -HttpResponse对象：
+    -对于HttpRequest对象来说，是由django自动创建的，但是，HttpResponse对象就必须我们自己创建。每个view请求处理方法必须返回一个HttpResponse对象。
+    -HttpResponse类在django.http.HttpResponse
+    -在HttpResponse对象上扩展的常用方法：
+      -页面渲染：render(request,方法、HTML文件)（推荐）<br>                 render_to_response(方法，html文件),
+      -页面跳转：redirect("路径")
+      -locals()：可以直接将函数中所有的变量传给模板
+    
+9,Template
+  -模板组成：HTML＋逻辑控制代码
+  -变量（使用双大括号来引用变量）：{{bianliang}}
+  -Template和Context对象
+    -template:带变量的模板
+    -给模板变量填数据
+      t = Template('My name is {{ name }}.')
+      c = Context({'name': 'Stephane'})
+      t.render(c)
+    
+    -在Django 模板中遍历复杂数据结构的关键是句点字符 (.)。
+      -利用句点可用于访问列表索引，list=[1,2,3]  list.0 = 1
+      -通过字典键访问该字典的值,person={name:"ohfuck"}, person.name = ohfuck
+      -可以通过句点来访问对象的属性,#year 、 month 和 day 几个属性，你同样可以在模板中使用句点来访问这些属性：d = datetime.date(1993, 5, 2)  d.year = 1993
+    
+    -变量的过滤器(filter)的使用：语法格式：{{obj|filter:param}}  -->{{ value|upper }} 大写
+      -add：给变量加上相应的值-->{{ value|add:3 }} value = value+3
+      -addslashes:给变量中的引号前加上斜线-->
+      -capfirst:首字母大写
+      -cut：从字符串中移除指定的字符-->{{ value|cut:' ' }}
+      -date：格式化日期字符串-->{{ value4|date:'Y-m-d' }}
+      -default：如果值是False,就替换成设置的默认值，否则就是用本来的值-->{{ value5|default:'空的' }}
+      -default_if_none:如果值是None，就替换成设置的默认值，否则就使用本来的值
+        {% autoescape off %}
+          {{ value6 }}
+        {% endautoescape %}#value6如果是html语句，浏览器将会对其进行渲染
+
+        {{ value6|safe }}#同上
+    
+    - 标签(tag)的使用（使用大括号和百分比的组合来表示使用tag）:{% tags %}
+      -{% if %} {% elif %}  {% else %}  {% endif %}
+        {% if %} 标签接受and，or或者not来测试多个变量值或者否定一个给定的变量
+        {% if %} 标签不允许同一标签里同时出现and和or，否则逻辑容易产生歧义
+      -{% for %} {% endfor %} 
+        -系统不支持中断循环，系统也不支持continue语句，{% for %}标签内置了一个forloop模板变量,这个变量含有一些属性可以提供给你一些关于循环的信息
+          -forloop.counter表示循环的次数，它从1开始计数，第一次循环设为1
+          -forloop.counter0 类似于forloop.counter，但它是从0开始计数，第一次循环设为0
+          -forloop.revcounter，颠倒计数
+          -forloop.revcounter0，同上，最后为0
+          -forloop.first当第一次循环时值为True
+          -empty：不显示empty后面的内容
+      -{%csrf_token%}：csrf_token标签
+        -用于生成csrf_token的标签，用于防治跨站攻击验证。注意如果你在view的index里用的是render_to_response方法，不会生效
+        -其实，这里是会生成一个input标签，和其他表单标签一起提交给后台的
+      -{% url %}:  引用路由配置的地址
+        -<form action="{% url "bieming"%}" >(此处的bieming是urls里面name属性定义的名字)
+      -{% with %}:用更简单的变量名替代复杂的变量名
+        -{% with total=fhjsaldfhjsdfhlasdfhljsdal %} {{ total }} {% endwith %}
+      -{% verbatim %}: 禁止render
+        -该标签包裹的内容无法渲染
+      -{% load %}: 加载标签库
+    
+    -自定义filter和simple_tag
+      -a、在app中创建templatetags模块(必须的)
+      -b、创建任意 .py 文件，如：my_tags.py
+        register = template.Library()   #register的名字是固定的,不可改变
+        @register.filter
+        def filter_multi(v1,v2):
+            return  v1 * v2
+        @register.simple_tag
+        def simple_tag_multi(v1,v2):
+            return  v1 * v2
+      -在使用自定义simple_tag和filter的html文件中导入之前创建的 my_tags.py ：{% load my_tags %}
+        {% load xxx %}   #首行
+         # num=12
+        {{ num|filter_multi:2 }} #24 只能传递一个参数，但是可以放在 if、for语句中
+        {{ num|filter_multi:"[22,333,4444]" }}
+        {% simple_tag_multi 2 5 %}  参数不限,但不能放在if for语句中
+        {% simple_tag_multi num 5 %}
+      -e、在settings中的INSTALLED_APPS配置当前app，不然django无法找到自定义的simple_tag.
+    
+    -extend模板继承
+      -用{% block (name) %} {% endblock %}标识模板内需要替换的部分
+      -在新的文件中{% extend 模板.html %}引用模板，并且用对应的{% block (name) %} 替换内容 {% endblock %}
+      -{% block.super %}可以获取到模板里面的内容（不会被替换，仍存在）
+      -如果在模板中使用 {% extends %} ，必须保证其为模板中的第一个模板标记。 否则，模板继承将不起作用。
+    -include，引入其他hthl页面
+      -使用include，需要在文件上面添加{% load staticfiles %}
+      -在需要引入的部位添加：{% include "引入.html" %}
+
+10,ORM
+  -建数据库：在app中的models文件内，创建一个类，就是创建一个表，该类需要继承(models.Model)，通过字段 = models.类型，来添加字段
+  -而后通过终端python manage.py makemigrations和migrate来创建
+  -每个数据模型都是django.db.models.Model的子类，它的父类Model包含了所有必要的和数据库交互的方法。并提供了一个简介漂亮的定义数据库字段的语法
+  -字段类型：
+    <1> CharField
+            #字符串字段, 用于较短的字符串.
+            #CharField 要求必须有一个参数 maxlength, 用于从数据库层和Django校验层限制该字段所允许的最大字符数.
+
+    <2> IntegerField
+           #用于保存一个整数.
+
+    <3> FloatField
+            # 一个浮点数. 必须 提供两个参数:
+            #
+            # 参数    描述
+            # max_digits    总位数(不包括小数点和符号)
+            # decimal_places    小数位数
+                    # 举例来说, 要保存最大值为 999 (小数点后保存2位),你要这样定义字段:
+                    #
+                    # models.FloatField(..., max_digits=5, decimal_places=2)
+                    # 要保存最大值一百万(小数点后保存10位)的话,你要这样定义:
+                    #
+                    # models.FloatField(..., max_digits=19, decimal_places=10)
+                    # admin 用一个文本框(<input type="text">)表示该字段保存的数据.
+
+    <4> AutoField
+            # 一个 IntegerField, 添加记录时它会自动增长. 你通常不需要直接使用这个字段; 
+            # 自定义一个主键：my_id=models.AutoField(primary_key=True)
+            # 如果你不指定主键的话,系统会自动添加一个主键字段到你的 model.
+
+    <5> BooleanField
+            # A true/false field. admin 用 checkbox 来表示此类字段.
+
+    <6> TextField
+            # 一个容量很大的文本字段.
+            # admin 用一个 <textarea> (文本区域)表示该字段数据.(一个多行编辑框).
+
+    <7> EmailField
+            # 一个带有检查Email合法性的 CharField,不接受 maxlength 参数.
+
+    <8> DateField
+            # 一个日期字段. 共有下列额外的可选参数:
+            # Argument    描述
+            # auto_now    当对象被保存时,自动将该字段的值设置为当前时间.通常用于表示 "last-modified" 时间戳.
+            # auto_now_add    当对象首次被创建时,自动将该字段的值设置为当前时间.通常用于表示对象创建时间.
+            #（仅仅在admin中有意义...)
+
+    <9> DateTimeField
+            #  一个日期时间字段. 类似 DateField 支持同样的附加选项.
+
+    <10> ImageField
+            # 类似 FileField, 不过要校验上传对象是否是一个合法图片.#它有两个可选参数:height_field和width_field,
+            # 如果提供这两个参数,则图片将按提供的高度和宽度规格保存.     
+    <11> FileField
+         # 一个文件上传字段.
+         #要求一个必须有的参数: upload_to, 一个用于保存上载文件的本地文件系统路径. 这个路径必须包含 strftime #formatting, 
+         #该格式将被上载文件的 date/time 
+         #替换(so that uploaded files don't fill up the given directory).
+         # admin 用一个<input type="file">部件表示该字段保存的数据(一个文件上传部件) .
+
+         #注意：在一个 model 中使用 FileField 或 ImageField 需要以下步骤:
+                #（1）在你的 settings 文件中, 定义一个完整路径给 MEDIA_ROOT 以便让 Django在此处保存上传文件. 
+                # (出于性能考虑,这些文件并不保存到数据库.) 定义MEDIA_URL 作为该目录的公共 URL. 要确保该目录对 
+                #  WEB服务器用户帐号是可写的.
+                #（2） 在你的 model 中添加 FileField 或 ImageField, 并确保定义了 upload_to 选项,以告诉 Django
+                # 使用 MEDIA_ROOT 的哪个子目录保存上传文件.你的数据库中要保存的只是文件的路径(相对于 MEDIA_ROOT). 
+                # 出于习惯你一定很想使用 Django 提供的 get_<#fieldname>_url 函数.举例来说,如果你的 ImageField 
+                # 叫作 mug_shot, 你就可以在模板中以 {{ object.#get_mug_shot_url }} 这样的方式得到图像的绝对路径.
+
+    <12> URLField
+          # 用于保存 URL. 若 verify_exists 参数为 True (默认), 给定的 URL 会预先检查是否存在( 即URL是否被有效装入且
+          # 没有返回404响应).
+          # admin 用一个 <input type="text"> 文本框表示该字段保存的数据(一个单行编辑框)
+
+    <13> NullBooleanField
+           # 类似 BooleanField, 不过允许 NULL 作为其中一个选项. 推荐使用这个字段而不要用 BooleanField 加 null=True 选项
+           # admin 用一个选择框 <select> (三个可选择的值: "Unknown", "Yes" 和 "No" ) 来表示这种字段数据.
+
+    <14> SlugField
+           # "Slug" 是一个报纸术语. slug 是某个东西的小小标记(短签), 只包含字母,数字,下划线和连字符.#它们通常用于URLs
+           # 若你使用 Django 开发版本,你可以指定 maxlength. 若 maxlength 未指定, Django 会使用默认长度: 50.  #在
+           # 以前的 Django 版本,没有任何办法改变50 这个长度.
+           # 这暗示了 db_index=True.
+           # 它接受一个额外的参数: prepopulate_from, which is a list of fields from which to auto-#populate 
+           # the slug, via JavaScript,in the object's admin form: models.SlugField
+           # (prepopulate_from=("pre_name", "name"))prepopulate_from 不接受 DateTimeFields.
+
+    <13> XMLField
+            #一个校验值是否为合法XML的 TextField,必须提供参数: schema_path, 它是一个用来校验文本的 RelaxNG schema #的文件系统路径.
+
+    <14> FilePathField
+            # 可选项目为某个特定目录下的文件名. 支持三个特殊的参数, 其中第一个是必须提供的.
+            # 参数    描述
+            # path    必需参数. 一个目录的绝对文件系统路径. FilePathField 据此得到可选项目. 
+            # Example: "/home/images".
+            # match    可选参数. 一个正则表达式, 作为一个字符串, FilePathField 将使用它过滤文件名.  
+            # 注意这个正则表达式只会应用到 base filename 而不是
+            # 路径全名. Example: "foo.*\.txt^", 将匹配文件 foo23.txt 却不匹配 bar.txt 或 foo23.gif.
+            # recursive可选参数.要么 True 要么 False. 默认值是 False. 是否包括 path 下面的全部子目录.
+            # 这三个参数可以同时使用.
+            # match 仅应用于 base filename, 而不是路径全名. 那么,这个例子:
+            # FilePathField(path="/home/images", match="foo.*", recursive=True)
+            # ...会匹配 /home/images/foo.gif 而不匹配 /home/images/foo/bar.gif
+
+    <15> IPAddressField
+            # 一个字符串形式的 IP 地址, (i.e. "24.124.1.30").
+    <16># CommaSeparatedIntegerField
+            # 用于存放逗号分隔的整数值. 类似 CharField, 必须要有maxlength参数.
+  -Filed的参数：
+    <1> null ： 数据库中字段是否可以为空
+
+    <2> blank： django的 Admin 中添加数据时是否可允许空值
+
+    <3> default：设定缺省值
+
+    <4> editable：如果为假，admin模式下将不能改写。缺省为真
+
+    <5> primary_key：设置主键，如果没有设置django创建表时会自动加上：
+        id = meta.AutoField('ID', primary_key=True)
+        primary_key=True implies blank=False, null=False and unique=True. Only one
+        primary key is allowed on an object.
+
+    <6> unique：数据唯一
+
+    <7> verbose_name　　Admin中字段的显示名称
+
+    <8> validator_list：有效性检查。非有效产生 django.core.validators.ValidationError 错误
+
+
+    <9> db_column，db_index 如果为真将为此字段创建索引
+
+    <10>choices：一个用来选择值的2维元组。第一个值是实际存储的值，第二个用来方便进行选择。
+                如SEX_CHOICES= (( ‘F’,'Female’),(‘M’,'Male’),)
+                gender = models.CharField(max_length=2,choices = SEX_CHOICES
+    
