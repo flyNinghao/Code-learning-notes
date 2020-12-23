@@ -508,6 +508,9 @@
         -在models中创建表类时，外键名=ForeignKey(主表名)
         -生成表时，django会给外键名加上"_id",如 publish=ForeignKey("Publish"),最终的外键名是publish_id
     -多对多
+      -创建多对多关系
+        -在models创建主表时，字段名=ManyToMany(从表名)(author=models.ManyToMany("Book")),django会自动创建一张多对多的表(book_author)
+        -也可以自己创建一张多对多的表，外键分别关联另外两张表
     -查询，查询相关API：
       -<1>filter(**kwargs):它包含了与所给筛选条件相匹配的对象
       -<2>all():查询所有结果
@@ -524,8 +527,19 @@
       -<12>last():返回最后一条记录
       -<13>exists():如果QuerySet包含数据，就返回True，否则返回False。
       
-      -一对多查询
-        -
+      -一对多查询(publish是出版社信息的主表，Book是出版社出版的书籍信息的从表。)
+        -一对多的从表用句点符(.)访问外键时，是一个对象。(Book.publish)是一个含publish信息的对象，可以通过点(.)访问publish的信息
+        -对象查询
+          -方式一（正向查询）
+            -publish_obj = Publish.objects.filter(name="xxx")[0]
+             ret = Book.objects.filter(publish=publish_obj).values('name','price')
+          -方式二（反向查询） 
+            -pub_obj = Publish.objects.filter(name="xxx")[0]
+             pub_obj.book_set.all().values(字段名)
+        -方式三（双下划线__）
+          -ret = Book.objects.filter(publish__name="xxx").values(字段名)
+          -ret = Book.objects.filter(name="xxx").values("publish__name")
+            
       
     -增加：
       -save方式
@@ -542,7 +556,13 @@
         -对foreignkey对象进行赋值：
           -publish_obj = Publish.objects.filter(name="xxx")[0]#获取对应的外键对象
           -author=Author.objects.create(name="alvin"，foreignkey=publish_obj)
+      -多对多添加
+        -如果是自建第三张关联表，与1对多添加方式相同
+        -如果采用ManyToMany的方式创建，则可以通过add的方式添加
+          book_obj=Book.objects.get(id=4)
+          author_obj=Author.objects.filter(id="xxx")
+          book_obj.author.add(author_obj)//如果取到的是一个对象集合，那么author_obj参数前面要加*号
     
     -修改，update
       -Book.objects.filter(id=1).update()
-    
+      -
