@@ -1,0 +1,24 @@
+1，Http生命周期
+  -http请求包含请求头和请求体，请求体是数据/以get方式访问，没有请求体&&&以post方式访问，可以从url中拿数据，也可以从请求体中拿数据
+  -Http的request请求以及response回复本质上是一堆字符串
+  -get方法可以用request.get从url中获取数据
+  -post方法的参数在请求体中，用request.get获取（将字符串转化为字典），request.body(获取请求体中的原生字符串)
+  
+  -请求响应Http
+    -发送Http请求
+    -服务器接收，根据请求头中的url在路有关系表中进行匹配（从上到下）
+    -匹配成功后，执行指定的views函数：url->函数-->FBV(Function Base View)  url->类-->CBV
+      -url后面可以是类，使用这种方式，类需要继承django的view类，同时，在url中要写作：views.类名.as_view()的形式
+      -以上面的方式，django的类提供了get和post方法，当以二种之一的方式访问类，会直接执行类中对应的方法
+      -调用类时，并不是直接调用get和post方法，而是先调用dispatch方法，因此可以在dispatch内定制内容
+    
+    
+    响应Http
+      -ret = HttpResponse("响应内容")
+       ret['h1']='v1'
+       ret.set_cookie=("c1","V2")
+      -响应头
+        -h1=v1
+        -cookies:v1=v2
+      -响应体
+        -响应内容(ret = HttpResponse("响应内容"))
