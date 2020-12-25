@@ -511,6 +511,22 @@
       -创建多对多关系
         -在models创建主表时，字段名=ManyToMany(从表名)(author=models.ManyToMany("Book")),django会自动创建一张多对多的表(book_author)
         -也可以自己创建一张多对多的表，外键分别关联另外两张表
+        -操作多对多的第三章表，用的是多对多的字段名，如 m=ManyToMany（Teachers）（班级表关联教师表）
+          -添加
+            -obj=Classes.objects.filter(id=1).first()取出id=1的班级
+             obj.m.add(2)将id=2的教师添加到id=1的班级中
+             obj.m.add([3,4])
+          -删除
+            -obj=Classes.objects.filter(id=1).first()取出id=1的班级
+             obj.m.remove([4,3])删除id=1班级中，id=4,3的老师
+             obj.m.clear()清空id=1班级中所有老师
+          -重置
+            -obj=Classes.objects.filter(id=1).first()取出id=1的班级
+             obj.m.set([2,3,5]) 将id=1班级中的老师设置为2,3,5，（如果原来存在4，那么4会被删除）
+          -查询
+            -obj=Classes.objects.filter(id=1).first()取出id=1的班级
+             obj.m.all()获取了id=1的班级的所有老师对象
+           
     -查询，查询相关API：
       -<1>filter(**kwargs):它包含了与所给筛选条件相匹配的对象
       -<2>all():查询所有结果
@@ -569,7 +585,7 @@
       -update是QuerySet对象的方法，get返回的是一个model对象，它没有update方法，
        而filter返回的是一个QuerySet对象(filter里面的条件可能有多个条件符合，比如name＝'alvin',可能有两个name＝'alvin'的行数据)
     
-    -删除，remove()和clear()方法
+    -删除，remove()和clear()方法（针对多对多删除）
       -book.author.clear()        #清空
       -book.author.remove(2)  #可以为id
       -book.author.remove(*[1,2,3,4])#可以为列表,前面加*
