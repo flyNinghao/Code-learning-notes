@@ -507,6 +507,7 @@
       -Django创建外键
         -在models中创建表类时，外键名=ForeignKey(主表名)
         -生成表时，django会给外键名加上"_id",如 publish=ForeignKey("Publish"),最终的外键名是publish_id
+        -利用外键查询时，外键__字段名（双下划线跨表查询）
     -多对多
       -创建多对多关系
         -在models创建主表时，字段名=ManyToMany(从表名)(author=models.ManyToMany("Book")),django会自动创建一张多对多的表(book_author)
@@ -515,7 +516,7 @@
           -添加
             -obj=Classes.objects.filter(id=1).first()取出id=1的班级
              obj.m.add(2)将id=2的教师添加到id=1的班级中
-             obj.m.add([3,4])
+             obj.m.add(*[3,4])
           -删除
             -obj=Classes.objects.filter(id=1).first()取出id=1的班级
              obj.m.remove([4,3])删除id=1班级中，id=4,3的老师
@@ -533,11 +534,13 @@
       -<3>get(**kwargs):返回与所给筛选条件相匹配的对象，返回结果有且只有一个，如果符合筛选条件的对象超过一个或者没有都会抛出错误。
             #-----------下面的方法都是对查询的结果再进行处理:比如 objects.filter.values()--------
       -<4>values(*field):返回一个ValueQuerySet——一个特殊的QuerySet，运行后得到的并不是一系列-model的实例化对象，而是一个可迭代的字典序列
+        -xxx.values(id)-->返回的是一个[{"id":"xxx"}]的字典序列
       -<5>exclude(**kwargs):它包含了与所给筛选条件不匹配的对象
       -<6>order_by(*field):对查询结果排序
       -<7>reverse():对查询结果反向排序
       -<8>distinct():从返回结果中剔除重复纪录
       -<9>values_list(*field):它与values()非常相似，它返回的是一个元组序列，values返回的是一个字典序列
+        -xxx.values_list(id,username)-->返回的是一个[(id,xxx),(username,yyy)]的元组序列
       -<10>count():返回数据库中匹配查询(QuerySet)的对象数量。
       -<11>first():返回第一条记录
       -<12>last():返回最后一条记录
@@ -554,8 +557,7 @@
              pub_obj.book_set.all().values(字段名)
         -方式三（双下划线__）
           -ret = Book.objects.filter(publish__name="xxx").values(字段名)
-          -ret = Book.objects.filter(name="xxx").values("publish__name")
-            
+          -ret = Book.objects.filter(name="xxx").values("publish__name") 
       
     -增加：
       -save方式
