@@ -1,0 +1,10 @@
+1，Ajax(jQuery)
+  -Ajax偷偷向后台发请求
+    -$.ajax(
+      url:"/地址.html",
+      type:post,
+      data:{'username':"xxx",'password':"123"},
+      success:fuction(arg){
+        //回调函数，arg是服务端返回的数据
+      }
+    )
