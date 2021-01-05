@@ -1,0 +1,239 @@
+# 15数字游戏
+# flyNinghao
+# 第一个pygame程序
+
+import pygame,sys,random,time
+from pygame.locals import *
+
+#定义需要使用的常量
+
+FPS=30 #游戏帧率
+
+WINDOWWIDTH = 680
+WINDOWHEIGHT = 480 #游戏界面的长款
+
+BORDERWIDTH = 4
+BORDERHEIGHT = 4 #数字格子的行列数
+TILESIZE = 80  #数字格子的大小
+
+WHITE = (255,255,255)
+BLACK = (0,0,0)
+GREEN = (0,204,0)  #几种需要用到的颜色
+
+BLANK = None #空格的状态
+
+UP="up"
+DOWN="down"
+LEFT ="left"
+RIGHT="right"#定义方向变量
+
+#以下常量没有用大写的方式
+slideSpeed = 10#定义游戏过程中数字块滑动速度
+randomSlideSpeed = 40#定义游戏开始时，自动打乱时的数字块滑动速度
+
+randomMoveNum = 50#定义自动打乱数字块的移动步数
+
+XMARGIN = int((WINDOWWIDTH-(TILESIZE*BORDERWIDTH+BORDERWIDTH-1))/2)
+YMARGIN = int((WINDOWHEIGHT-(TILESIZE*BORDERHEIGHT+BORDERHEIGHT-1))/2)  #游戏区域左上角与游戏视图左上角的距离
+
+def main():#游戏主函数
+    global DISPLAYSURF,FPSCLOCK,BASICFONT #设置全局变量，全局变量尽量少用，可以使用参数传值的方式
+    pygame.init()#启动pygame
+    DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH,WINDOWHEIGHT))#设置游戏窗口
+    FPSCLOCK=pygame.time.Clock()
+    pygame.display.set_caption("SLIDE NUMBER GAME")#设置游戏名称
+    BASICFONT = pygame.font.SysFont('arial', 26)#设置字体
+
+    # 画出游戏的初始状态，并随机打乱
+    board = getRandom()#启动游戏时自动打乱，并获取游戏过程中游戏面板的状态
+    winboard = getStartBoard()#记录胜利的状态
+
+    message = ""#以message判断游戏完成状态
+    while True:
+        #游戏开始操作的主逻辑
+        if board == winboard:#如果游戏最终与游戏完成状态相同，给message赋值
+            message = "Congratulations! You Win!"
+        drawBoard(board,message)#不断执行该函数，根据游戏状态画出游戏区域
+        moveTo = ""#该参数用于数字块的移动
+        for event in pygame.event.get():#监听鼠标和键盘事件
+            if event.type ==QUIT:#退出游戏
+                pygame.quit()
+                sys.exit()
+            elif event.type ==MOUSEBUTTONUP:#鼠标点击
+                clickx,clicky = getClickXY(event.pos[0],event.pos[1],board)#获取鼠标点击的数字块坐标
+                blankx,blanky = getBlankXY(board)#获取空白格子的坐标
+                #以下是根据点击数字块与空白格子的相对位置，决定点击数字块的移动方向
+                if clickx == blankx and clicky == blanky-1:
+                    moveTo = DOWN
+                elif clickx == blankx and clicky == blanky+1:
+                    moveTo = UP
+                elif clickx == blankx-1 and clicky == blanky:
+                    moveTo = RIGHT
+                elif clickx == blankx+1 and clicky == blanky:
+                    moveTo = LEFT
+            elif event.type == KEYUP:#监听键盘事件
+                #以下是根据键盘按键点击（上下左右和WSAD）来确定数字块的移动方向
+                if event.key in (K_LEFT,K_a) and isMovable(board,move=LEFT):
+                    moveTo=LEFT
+                elif event.key in (K_RIGHT,K_d) and isMovable(board,move=RIGHT):
+                    moveTo = RIGHT
+                elif event.key in (K_UP,K_w) and isMovable(board,move=UP):
+                    moveTo = UP
+                elif event.key in (K_DOWN,K_s) and isMovable(board,move=DOWN):
+                    moveTo = DOWN
+        if moveTo:#执行数字块的移动操作
+            slideAnimation(moveTo,board,slideSpeed)#数字块滑动效果
+            moveTile(board, moveTo)#滑动完成后更改游戏区的状态
+
+        pygame.display.update()#更新屏幕
+        FPSCLOCK.tick(FPS)
+#该函数用于获取游戏初始状态，获取二维数组：
+# [[1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15], [4, 8, 12, None]]
+#数组中的每一个元素是游戏区一列的数字
+def getStartBoard():
+    board = []
+    for numX in range(BORDERWIDTH):
+        column = []
+        for numY in range(BORDERHEIGHT):
+            number = numY*BORDERWIDTH+1+numX
+            column.append(number)
+        board.append(column)
+    board[BORDERWIDTH-1][BORDERHEIGHT-1] = BLANK
+    return board
+
+#该函数用于获取每个数字块的左上角坐标，用以画出该数字块
+#tileX,tileY是数字块的横纵坐标，两个数字块之间留一像素的分割线
+def getLeftTop(tileX,tileY):
+    left = tileX*TILESIZE +XMARGIN+tileX
+    top = tileY*TILESIZE + YMARGIN +tileY
+    return (left,top)
+
+#该函数用于画数字块，由于后面涉及到数字块的滑动，因此用独立函数处理，只需要传入左上角的数值即可
+def drawTile(left,top,number):
+    pygame.draw.rect(DISPLAYSURF,GREEN,(left,top,TILESIZE,TILESIZE))
+    number = BASICFONT.render(str(number),True,WHITE)
+    numberRect = number.get_rect()
+    numberRect.center = left+int(TILESIZE/2),top+int(TILESIZE/2)
+    DISPLAYSURF.blit(number,numberRect)
+
+#该函数用于画主界面
+def drawBoard(board,message):
+    DISPLAYSURF.fill(BLACK)
+    if message:#如果message有值，则说明游戏完成，将message的值打印在游戏区上方居中的位置
+        wintext = BASICFONT.render(str(message), True, WHITE)
+        wintextRect = wintext.get_rect()
+        wintextRect.center = WINDOWWIDTH/2,YMARGIN/2
+        DISPLAYSURF.blit(wintext,wintextRect)
+    for i in range(len(board)):#将数字块画在面板上
+        for j in range(len(board[0])):
+            if board[i][j]:
+                left,top = getLeftTop(i,j)
+                drawTile(left,top,board[i][j])
+
+#该函数用于获得空格子的XY坐标（位置）
+def getBlankXY(board):
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if not board[i][j]:
+                return (i,j)
+    return (None,None)#这句话可以没有
+
+#该函数用于获取鼠标点击的那个数字块的坐标
+def getClickXY(mousex,mousey,board):
+    for tileX in range(len(board)):
+        for tileY in range(len(board[0])):
+            left,top = getLeftTop(tileX,tileY)
+            rect = pygame.Rect(left,top,TILESIZE,TILESIZE)
+            if rect.collidepoint(mousex,mousey):
+                return (tileX,tileY)
+    return (None,None)
+
+#该函数主要用于判断点击时，数字块能否向某个方向移动，返回布尔值，主要用于键盘的操作判定
+def isMovable(board,move):
+    blankx,blanky = getBlankXY(board)
+    return(move==RIGHT and blankx!=0) or \
+          (move==LEFT and blankx!=len(board)-1) or \
+          (move==UP and blanky!=len(board[0])-1) or \
+          (move==DOWN and blanky!=0)
+
+
+#该函数用于执行移动数字块，由于数字块是根据每个块的状态画在视图上的（board[x][y]为数字的则画上，为None的则不画），
+# 因此，实现数字块移动只需要更改两个数字块的状态即可，将被移动的数字块在列表中的值改为None，移动至的那格子改为数字即可
+def moveTile(board,move):
+    blankx, blanky = getBlankXY(board)
+    if move == DOWN:
+        board[blankx][blanky - 1], board[blankx][blanky] = board[blankx][blanky], board[blankx][blanky - 1]
+    elif move ==UP:
+        board[blankx][blanky + 1], board[blankx][blanky] = board[blankx][blanky], board[blankx][blanky + 1]
+    elif move == LEFT:
+        board[blankx + 1][blanky], board[blankx][blanky] = board[blankx][blanky], board[blankx + 1][blanky]
+    elif move == RIGHT:
+        board[blankx - 1][blanky], board[blankx][blanky] = board[blankx][blanky], board[blankx - 1][blanky]
+
+#该函数主要用于制作数字块的滑动效果
+def slideAnimation(move,board,slideSpeed):
+    blankx,blanky = getBlankXY(board)#获取空白格子左边
+    #根据移动的方向，获取需要移动的格子的坐标
+    if move == RIGHT:
+        movex = blankx-1
+        movey = blanky
+    elif move == LEFT:
+        movex = blankx+1
+        movey = blanky
+    elif move == UP:
+        movex = blankx
+        movey = blanky+1
+    elif move == DOWN:
+        movex =blankx
+        movey = blanky-1
+
+    left, top = getLeftTop(movex, movey)#获取需要移动的格子的左上角像素坐标
+    drawBoard(board,"")
+    emptyTile = DISPLAYSURF.copy()#复制一份游戏画布
+    pygame.draw.rect(emptyTile, BLACK, (left, top, TILESIZE, TILESIZE))#在需要移动的格子上画上底色
+    #将格子像某个方向移动（通过更改格子左上角像素坐标的方式）
+    for i in range(0,TILESIZE,slideSpeed):
+        DISPLAYSURF.blit(emptyTile, (0, 0))
+        if move == RIGHT:
+            drawTile(left+i,top,board[movex][movey])
+        elif move == LEFT:
+            drawTile(left - i, top, board[movex][movey])
+        elif move == UP:
+            drawTile(left, top - i, board[movex][movey])
+        elif move == DOWN:
+            drawTile(left, top + i, board[movex][movey])
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
+
+#该函数用于获取随机移动的方向
+def getRandommove(lastmove,board):
+    move = [RIGHT,LEFT,UP,DOWN]
+    #为了避免格子重复移动，每一个随机移动的方向都不同，因此，将上一步操作或无法移动的方向从列表中删除
+    if lastmove ==RIGHT or not isMovable(board,LEFT):
+        move.remove(LEFT)
+    if lastmove == LEFT or not isMovable(board,RIGHT):
+        move.remove(RIGHT)
+    if lastmove == UP or not isMovable(board,DOWN):
+        move.remove(DOWN)
+    if lastmove == DOWN or not isMovable(board,UP):
+        move.remove(UP)
+    return random.choice(move)#随机获取一个移动方向
+
+#打乱游戏数字区
+def getRandom():
+    board = getStartBoard()
+    drawBoard(board,"")
+    pygame.display.update()
+    lastmove = None
+    for i in range(randomMoveNum):
+        moveTo = getRandommove(lastmove,board)
+        slideAnimation(moveTo, board,randomSlideSpeed)
+        moveTile(board, moveTo)
+        lastmove = moveTo
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
+    return board
+
+if __name__ == '__main__':
+    main()
+
