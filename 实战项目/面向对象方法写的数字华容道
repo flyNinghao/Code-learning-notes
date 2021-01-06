@@ -1,0 +1,240 @@
+#面向过程方法写完这个游戏之后，考虑了用面向对象的方法来写
+#将数字方块写成一个类，实例出16个对象，每个数字块是一个对象，数字块的动作和属性都封装在类中
+#与面向过程方法不同的是，面向过程是通过更改两个数字块坐标更改两个位置的状态，通过状态绘制出方块，而面向对象是通过更改对象的left和top的值来实现数字块位置更改
+#最后也是通过对比每个数字块（left，top）数值来判断游戏是否完成
+import pygame,sys,random
+from pygame.locals import *
+
+WINDOWWIDTH = 680
+WINDOWHEIGHT = 480
+
+FPS=30
+
+BORDERWIDTH = 4
+BORDERHEIGHT = 4
+TOTALNUM = BORDERWIDTH*BORDERHEIGHT
+TILESIZE = 80
+
+WHITE = (255,255,255)
+BLACK = (0,0,0)
+GREEN = (0,204,0)  #几种需要用到的颜色
+
+UP="up"
+DOWN="down"
+LEFT ="left"
+RIGHT="right"#定义方向变量
+
+#以下常量没有用大写的方式
+SLIDESPEED = 10#定义游戏过程中数字块滑动速度
+RANDOMSLIDESPEED = 20#定义游戏开始时，自动打乱时的数字块滑动速度
+
+RANDOMMOVENUM = 80#定义自动打乱数字块的移动步数
+
+TILECOLOR = GREEN
+TEXTCOLOR = WHITE
+
+XMARGIN = int((WINDOWWIDTH-(TILESIZE*BORDERWIDTH+BORDERWIDTH-1))/2)
+YMARGIN = int((WINDOWHEIGHT-(TILESIZE*BORDERHEIGHT+BORDERHEIGHT-1))/2)  #游戏区域左上角与游戏视图左上角的距离
+
+class NumBrick():
+    def __init__(self,size,number,color,textcolor,boderwidth,xmargin,ymargin,displaysurf,font=None,isnone=False):
+        self.size = size
+        self.number = number
+        self.color = color
+        self.textcolor = textcolor
+        self.boderwidth = boderwidth
+        self.xmargin = xmargin
+        self.ymargin = ymargin
+        self.posX = (int(self.number)-1)%self.boderwidth
+        self.posY = (int(self.number)-1)//self.boderwidth
+        self.left = self.posX * self.size + self.xmargin + self.posX
+        self.top = self.posY * self.size + self.ymargin + self.posY
+        self.constleft = self.posX * self.size + self.xmargin + self.posX
+        self.consttop = self.posY * self.size + self.ymargin + self.posY
+        self.displaysurf = displaysurf
+        self.font = font
+        self.isnone = isnone
+
+    def slide(self,direction,speed,blankBrick):
+        if direction == RIGHT:
+            self.left +=1
+        elif direction == LEFT:
+            self.left -= 1
+        elif direction == UP:
+            self.top-= 1
+        elif direction == DOWN:
+            self.top +=1
+        else:return
+        for i in range(int(self.size/speed)):
+            if direction == UP:
+                self.top -= speed
+                self.draw(True)
+            elif direction ==DOWN:
+                self.top += speed
+                self.draw(True)
+            elif direction == LEFT:
+                self.left -= speed
+                self.draw(True)
+            elif direction == RIGHT:
+                self.left += speed
+                self.draw(True)
+
+            pygame.display.update()
+            FPSCLOCK.tick((FPS))
+        blankBrick.left = self.constleft
+        blankBrick.top = self.consttop
+        self.constleft = self.left
+        self.consttop = self.top
+
+    def draw(self,slide):
+        if slide:
+            self.drawbg()
+        pygame.draw.rect(self.displaysurf,self.color,(self.left,self.top,self.size,self.size))
+        number = self.font.render(str(self.number), True, self.textcolor)
+        numberRect = number.get_rect()
+        numberRect.center = self.left + int(self.size / 2), self.top + int(self.size / 2)
+        self.displaysurf.blit(number, numberRect)
+
+    def getClick(self,mousex,mousey):
+        rect = pygame.Rect(self.left,self.top,self.size,self.size)
+        if rect.collidepoint(mousex,mousey):
+            return True
+
+    def drawbg(self):
+        base = self.displaysurf.copy()
+        pygame.draw.rect(base, BLACK, (self.constleft, self.consttop, self.size, self.size))
+        self.displaysurf.blit(base, (0, 0))
+
+    def isMovable(self,blankBrick):
+        if self.left+self.size+1 == blankBrick.left and self.top == blankBrick.top:
+            return RIGHT
+        elif self.left-self.size-1 == blankBrick.left and self.top == blankBrick.top:
+            return LEFT
+        elif self.top+self.size+1 == blankBrick.top and self.left == blankBrick.left:
+            return DOWN
+        elif self.top -self.size-1 == blankBrick.top and self.left == blankBrick.left:
+            return UP
+
+def main():
+    global FPSCLOCK
+    pygame.init()
+    displaysurf = pygame.display.set_mode((WINDOWWIDTH,WINDOWHEIGHT))
+    pygame.display.set_caption("面向对象方法写的数字华容道")
+    FPSCLOCK = pygame.time.Clock()
+    font = pygame.font.SysFont("arial",16)
+    brickBoard,winBoard,blankBrick = RandomMove(displaysurf,font,RANDOMMOVENUM)
+    message = ""
+    while True:
+        winstate = []
+        for i in brickBoard:
+            winstate.append((i.left,i.top))
+        if winstate == winBoard:
+            message="YOU WIN"
+        else:
+            message==""
+        drawBoard(brickBoard,displaysurf,font,message)
+        for event in pygame.event.get():
+            if event.type ==QUIT:
+                quitGame()
+            elif event.type == MOUSEBUTTONUP:
+                for brick in brickBoard:
+                    if brick.getClick(event.pos[0],event.pos[1]) and brick.isMovable(blankBrick):
+                        brick.slide(brick.isMovable(blankBrick),SLIDESPEED,blankBrick)
+            elif event.type == KEYUP:
+                if event.key == K_RIGHT:
+                    brick = getDirection(RIGHT,brickBoard,blankBrick)
+                    if brick:
+                        brick.slide(RIGHT,SLIDESPEED,blankBrick)
+
+                if event.key == K_LEFT:
+                    brick = getDirection(LEFT, brickBoard, blankBrick)
+                    if brick:
+                        brick.slide(LEFT, SLIDESPEED, blankBrick)
+
+                if event.key == K_UP:
+                    brick = getDirection(UP, brickBoard, blankBrick)
+                    if brick:
+                        brick.slide(UP, SLIDESPEED, blankBrick)
+
+                if event.key == K_DOWN:
+                    brick = getDirection(DOWN, brickBoard, blankBrick)
+                    if brick:
+                        brick.slide(DOWN, SLIDESPEED, blankBrick)
+
+            elif event.type == KEYUP:
+                pass
+        pygame.display.update()
+        FPSCLOCK.tick((FPS))
+
+def quitGame():
+    pygame.quit()
+    sys.exit()
+
+def newBrick(displaysurf,font):
+    brick = []
+    winstate = []
+    for i in range(TOTALNUM):
+        nbrick = NumBrick(TILESIZE, i + 1, TILECOLOR,TEXTCOLOR,BORDERWIDTH,XMARGIN,YMARGIN,displaysurf,font)
+        brick.append(nbrick)
+        winstate.append((nbrick.left,nbrick.top))
+    brick[TOTALNUM-1].isnone = True
+    print(winstate)
+    return (brick,winstate,brick[TOTALNUM-1])
+
+# def movable(brickBoard,move):
+#     for brick in brickBoard:
+#         if brick.isnone:
+
+def getDirection(dire,brickBoard,blankBrick):
+    for brick in brickBoard:
+        if brick.isMovable(blankBrick) == dire:
+            return brick
+
+def drawBoard(brickBoard,displaysurf,font,message):
+    displaysurf.fill(BLACK)
+    if message:
+        wintext = font.render(str(message), True, WHITE)
+        wintextRect = wintext.get_rect()
+        wintextRect.center = WINDOWWIDTH / 2, YMARGIN / 2
+        displaysurf.blit(wintext, wintextRect)
+
+    for brick in brickBoard:
+        if not brick.isnone:
+            brick.draw("")
+
+def shanchudir(directions,direct):
+    for i in directions:
+        if i[1] == direct:
+            directions.remove(i)
+    return directions
+
+
+def getRandomDirection(brickmove,brickBoard,blankBrick):
+    directions = []
+    for brick in brickBoard:
+        direction = brick.isMovable(blankBrick)
+        if brick.isMovable(blankBrick):
+            directions.append((brick,direction))
+    if brickmove:
+        if brickmove[1]==RIGHT:
+            directions = shanchudir(directions,LEFT)
+        elif brickmove[1] == LEFT:
+            directions = shanchudir(directions,RIGHT)
+        elif brickmove[1] == UP:
+            directions = shanchudir(directions,DOWN)
+        elif brickmove[1] == DOWN:
+            directions = shanchudir(directions,UP)
+    return random.choice(directions)
+
+def RandomMove(displaysurf,font,randomnum):
+    brickBoard, winBoard, blankBrick = newBrick(displaysurf, font)
+    brickmove =()
+    for i in range(randomnum):
+        drawBoard(brickBoard, displaysurf,font,"")
+        brick,move = getRandomDirection(brickmove,brickBoard,blankBrick)
+        brick.slide(move,RANDOMSLIDESPEED,blankBrick)
+        brickmove = (brick,move)
+
+    return brickBoard, winBoard, blankBrick
+if __name__ == '__main__':
+    main()
