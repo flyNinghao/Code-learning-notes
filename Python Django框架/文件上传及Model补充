@@ -1,0 +1,9 @@
+1，文件上传
+  -普通上传：通过HTMLForm传递至后台后，用文件操作，write到本地
+  -自定义页面上传按钮：通过设置position及opacity，将按钮与上传文件的input按钮重合
+  -基于Form做的上传，用form组件上传，write到本地
+  -Ajax上传文件
+
+
+2，Model操作补充
+  
