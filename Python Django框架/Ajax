@@ -8,3 +8,27 @@
         //回调函数，arg是服务端返回的数据
       }
     )
+
+  -XMLHttpRequest
+    -jQuery
+      $.ajax({url:"xxx",type:"get/type",data:{},success:function())
+    -手动使用(原生js)
+      function ajaxsbmit(){
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function(){
+          if(xhr.readyState == 4){//状态码==4时，表示接收完成
+            res = xhr.responseText;//返回的数据
+          }
+        }
+        #########get方式发送#######
+        xhr.open("GET",'/ajax1.html?p=123');//
+        xhr.send(null)//
+        
+        #####POST方式发送############
+        #xhr.open("Post",'/ajax1.html')
+        #xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset-UTF-8');//设置请求头
+        #xhr.send("p=456")
+      }
+      
+    -伪ajax
+    
