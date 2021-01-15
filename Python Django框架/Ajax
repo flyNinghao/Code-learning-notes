@@ -25,10 +25,195 @@
         xhr.send(null)//
         
         #####POST方式发送############
-        #xhr.open("Post",'/ajax1.html')
+        #xhr.open("Post",'/ajax1.html')//指定连接方式和地址----文件方式
         #xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset-UTF-8');//设置请求头
         #xhr.send("p=456")
       }
       
-    -伪ajax
+    -XmlHttpRequest对象的主要方法：
+      a. void open(String method,String url,Boolen async)用于创建请求
+      参数：
+         method： 请求方式（字符串类型），如：POST、GET、DELETE...
+         url：    要请求的地址（字符串类型）
+         async：  是否异步（布尔类型）
+      b. void send(String body)用于发送请求
+          参数：
+              body： 要发送的数据（字符串类型）
+      c. void setRequestHeader(String header,String value)用于设置请求头
+          参数：
+              header： 请求头的key（字符串类型）
+              vlaue：  请求头的value（字符串类型）
+      d. String getAllResponseHeaders()
+          获取所有响应头
+          返回值：
+              响应头数据（字符串类型）
+      e. String getResponseHeader(String header)获取响应头中指定header的值
+          参数：
+              header： 响应头的key（字符串类型）
+          返回值：
+              响应头中指定的header对应的值
+      f. void abort()    终止请求
     
+    -XmlHttpRequest对象的主要属性：
+      a. Number readyState
+         状态值（整数）
+         详细：
+            0-未初始化，尚未调用open()方法；
+            1-启动，调用了open()方法，未调用send()方法；
+            2-发送，已经调用了send()方法，未接收到响应；
+            3-接收，已经接收到部分响应数据；
+            4-完成，已经接收到全部响应数据；
+      b. Function onreadystatechange
+         当readyState的值改变时自动触发执行其对应的函数（回调函数）
+      c. String responseText
+         服务器返回的数据（字符串类型）
+      d. XmlDocument responseXML
+         服务器返回的数据（Xml对象）
+      e. Number states
+         状态码（整数），如：200、404...
+      f. String statesText
+         状态文本（字符串），如：OK、NotFound...
+      
+    -伪ajax
+      -利用iframe的不刷新页面和form的数据提交功能，伪造ajax功能
+      -iframe获得的是一个html页面文件，因此，获取到的数据，需要通过contentWindow.document.body.innerHTML;获取
+        <iframe id="iframe" name="ifra"></iframe>##数据返回后放在iframe内
+        <form id ="fm" action="xxx" method="POST" target="ifra">
+          <input name = "root" value ="1111" />
+          <a  onclick="ajaxsubmit()">提交</a>
+        </form>
+        <script>
+          function funcName(){
+            var data = this.contentWindow.document.body.innerHTML//用dom方法获取数据，contentWindow表示进入另一个html
+            //var data = $(this).contents().find('body').html()//用jQuery方法获取数据
+            var obj = JSON.parse(data)
+          }
+          function ajaxsubmit(){
+            document.getElementById("iframe").onload = funcName
+            document.getElementById("fm").submit()
+          }
+        </script>
+
+2，文件上传
+  -jQuery（可以用FormData对象来实现）
+    <input type="file">
+    <a id="img" class="xx" id="sub" onclick="ajaxupload()">提交</a>
+    <script>
+      function ajaxupload(){
+        document.getElementById("img").files[0]//.files,代表已经上传的内容
+        var data = new FormData();//封装数据(还可以封装文件)
+        data.append("k1","v1")//封装字符串
+        data.append("k2","v2")
+        data.append("k3",document.getElementById("img").files[0])
+        
+        $.ajax({
+          url:"xxx",
+          type:"POST",
+          data: data,
+          success:function(){},
+          processData:false,// tell jQuery not to process the data
+          contentType: false //tell jQuery not to set contentType
+        })
+      }
+    </script>
+  -原生（可以用FormData对象来实现）
+    -实现方法同上，将data用FormData封装即可
+  -iframe
+    无需通过FormData封装
+
+3，JSONP，跨域Ajax
+  -浏览器的同源策略：XMLHttpRequest只能在本地发请求（向其他服务器发请求，返回的数据会被浏览器禁用）
+  -具有src属性的标签都不遵循同源策略（img iframe script等）
+  -JSONP：是一种方式，将数据包裹在函数名中，本地定义相应的函数，函数的参数即是获得的数据（函数名（返回数据））
+    $.ajax({
+      url:"xxx",
+      type:"GET",
+      dataType:"jsonp",
+      jasonp:"callback",//指定通过传过去的数据字典的key
+      jsonpCallback:"func",//指定包裹数据的函数名，相当于callback="func"
+    })在ajax中用jsonp的dataType，即可实现。（上述相当于"xxx/?callback=func"）
+    -jsonp不能用post请求（即使使用POST，内部也会改成get）
+      -因为jsonp本质是在head中生成一个<script>标签，然后将请求网址作为src写入标签中，获取数据之后移除（相当于从一个js文件中获取数据，所以数据要依照js语法，写成函数与参数的形式）
+    
+4，CORS（跨站资源共享）
+  -除了返回数据之外，还会返回一个响应头。浏览器可以识别响应头，判断是否禁用返回数据
+
+
+5，jQuery Ajax 方法列表
+  jQuery.get(...)
+      所有参数：
+           url: 待载入页面的URL地址
+          data: 待发送 Key/value 参数。
+       success: 载入成功时回调函数。
+      dataType: 返回内容格式，xml, json,  script, text, html
+
+
+  jQuery.post(...)
+      所有参数：
+           url: 待载入页面的URL地址
+          data: 待发送 Key/value 参数
+       success: 载入成功时回调函数
+      dataType: 返回内容格式，xml, json,  script, text, html
+
+
+  jQuery.getJSON(...)
+      所有参数：
+           url: 待载入页面的URL地址
+          data: 待发送 Key/value 参数。
+       success: 载入成功时回调函数。
+
+
+  jQuery.getScript(...)
+      所有参数：
+           url: 待载入页面的URL地址
+          data: 待发送 Key/value 参数。
+       success: 载入成功时回调函数。
+
+
+  jQuery.ajax(...)
+
+      部分参数：
+
+              url：请求地址
+             type：请求方式，GET、POST（1.9.0之后用method）
+          headers：请求头
+             data：要发送的数据
+      contentType：即将发送信息至服务器的内容编码类型(默认: "application/x-www-form-urlencoded; charset=UTF-8")
+            async：是否异步
+          timeout：设置请求超时时间（毫秒）
+
+       beforeSend：发送请求前执行的函数(全局)
+         complete：完成之后执行的回调函数(全局)
+          success：成功之后执行的回调函数(全局)
+            error：失败之后执行的回调函数(全局)
+
+
+          accepts：通过请求头发送给服务器，告诉服务器当前客户端课接受的数据类型
+         dataType：将服务器端返回的数据转换成指定类型
+                         "xml": 将服务器端返回的内容转换成xml格式
+                        "text": 将服务器端返回的内容转换成普通文本格式
+                        "html": 将服务器端返回的内容转换成普通文本格式，在插入DOM中时，如果包含JavaScript标签，则会尝试去执行。
+                      "script": 尝试将返回值当作JavaScript去执行，然后再将服务器端返回的内容转换成普通文本格式
+                        "json": 将服务器端返回的内容转换成相应的JavaScript对象
+                       "jsonp": JSONP 格式
+                                使用 JSONP 形式调用函数时，如 "myurl?callback=?" jQuery 将自动替换 ? 为正确的函数名，以执行回调函数
+
+                        如果不指定，jQuery 将自动根据HTTP包MIME信息返回相应类型(an XML MIME type will yield XML, in 1.4 JSON will yield a JavaScript object, in 1.4 script will execute the script, and anything else will be returned as a string
+
+       converters： 转换器，将服务器端的内容根据指定的dataType转换类型，并传值给success回调函数
+               $.ajax({
+                    accepts: {
+                      mycustomtype: 'application/x-some-custom-type'
+                    },
+
+                    // Expect a `mycustomtype` back from server
+                    dataType: 'mycustomtype'
+
+                    // Instructions for how to deserialize a `mycustomtype`
+                    converters: {
+                      'text mycustomtype': function(result) {
+                        // Do Stuff
+                        return newresult;
+                      }
+                    },
+                  });
